@@ -69,14 +69,29 @@ static void move_knob_if_needed(FancyPoint fp, float z_distance);
  */
 void GcodeSuite::G33() {
 
-(void) probe;
 
   SERIAL_ECHOLNPGM("G33: Test12");
   do_blocking_move_to_z(10);
 
+
+  #if HAS_LEVELING
+    set_bed_leveling_enabled(false);
+  #endif
+
+  remember_feedrate_scaling_off();
+
+
   FancyPoint fp = SOUTH_WEST;
-  static float distance = probe.probe_at_point(FancyPoint2XY(fp), PROBE_PT_STOW, 1);
-  move_knob_if_needed(fp, distance);
+  const float measured_z = probe.probe_at_point(FancyPoint2XY(fp), PROBE_PT_STOW, 1);
+
+
+  restore_feedrate_and_scaling();
+
+  if(!isnanf(measured_z))
+  {
+    SERIAL_ECHOLNPAIR("Bed X: ", FIXFLOAT(current_position.x), " Y: ", FIXFLOAT(current_position.y), " Z: ", FIXFLOAT(measured_z));
+    move_knob_if_needed(fp, measured_z);
+  }
 
   return;
 
