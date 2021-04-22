@@ -47,7 +47,7 @@
 #include "../../module/servo.h"
 
 
-enum FancyPoint { SOUTH_EAST = 0, NORTH_EAST = 1, NORTH_WEST = 2 , SOUTH_WEST = 3};
+enum FancyPoint { SOUTH_WEST = 0, NORTH_WEST = 1, NORTH_EAST = 2 , SOUTH_EAST = 3};
 const xy_pos_t pos_nw = { 40.0f, 260.0f };
 const xy_pos_t pos_ne = { 260.0f, 260.0f };
 const xy_pos_t pos_se = { 260.0f, 40.0f };
@@ -82,7 +82,7 @@ void GcodeSuite::G33() {
   FancyPoint fp = (FancyPoint)pointIndex;
 
 
-  do_blocking_move_to_z(10);
+  do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
 
 
   #if HAS_LEVELING
