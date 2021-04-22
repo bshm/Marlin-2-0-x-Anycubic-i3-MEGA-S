@@ -150,6 +150,13 @@ xy_pos_t getKnobMovePos(FancyPoint fp, bool lowerPos)
   xy_pos_t pos;
   
   pos = FancyPoint2XY(fp);
+  
+  if(fp == NORTH_EAST || fp == SOUTH_EAST)
+  {
+    lowerPos = !lowerPos;
+  }
+
+
   if(lowerPos)
   {
     pos.y -= KNOB_OFFSET; 
