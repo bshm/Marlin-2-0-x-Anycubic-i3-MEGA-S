@@ -98,10 +98,11 @@ void GcodeSuite::G33() {
   else
   {
     int numberOfKnobsDone = 0;
-    int step = 1;
-    FancyPoint fp = SOUTH_WEST;
+    int step = 0;
+    FancyPoint fp = SOUTH_EAST;
     while(numberOfKnobsDone < 4)
     {
+      step += 1;
       SERIAL_ECHOLNPAIR("starting step: ", step);
 
       fp = getNextPoint(fp);
@@ -115,7 +116,6 @@ void GcodeSuite::G33() {
         numberOfKnobsDone += 1;
       }
       SERIAL_ECHOLNPAIR("numberOfKnobsDone: ", numberOfKnobsDone);
-      step += 1;
     }
     SERIAL_ECHOLNPAIR("Done after steps: ", step);
   }
