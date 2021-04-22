@@ -57,6 +57,7 @@ void GcodeSuite::G33() {
 
   SERIAL_ECHOLNPGM("G33: Test12");
   do_blocking_move_to_z(10);
+
   return;
 
 }
@@ -69,7 +70,10 @@ const xy_pos_t pos_se = { 260.0f, 40.0f };
 const xy_pos_t pos_sw = { 40.0f, 40.0f };
 const int servoIndexWest = 1;
 const int servoIndexEast = 3;
-
+const float z_max_deviation = 0.02;
+const int SERVO_UP = 90;
+const int SERVO_DOWN = 0;
+const float KNOB_OFFSET = 30.0f ;//mm distance between knob center and start/end of movement
 
 xy_pos_t FancyPoint2XY(FancyPoint fp)
 {
@@ -103,10 +107,51 @@ int FancyPoint2ServoIndex(FancyPoint fp)
   return 0;
 }
 
+
+xy_pos_t getKnobMovePos(FancyPoint fp, bool lowerPos)
+{
+  xy_pos_t pos;
+  
+  pos = FancyPoint2XY(fp);
+  if(lowerPos)
+  {
+    pos.y -= KNOB_OFFSET; 
+  }
+  else
+  { 
+    pos.y += KNOB_OFFSET; 
+  }
+
+  return pos;
+}
+
+
+void move_knob_if_needed(FancyPoint fp, float z_distance)
+{
+  const int servoIndex = FancyPoint2ServoIndex(fp);
+    if(z_distance > z_max_deviation)
+    {
+      do_blocking_move_to(getKnobMovePos(fp, false));
+      servo[servoIndex].move(SERVO_UP);
+      do_blocking_move_to(getKnobMovePos(fp, true));
+      servo[servoIndex].move(SERVO_DOWN);
+    }
+    else if(z_distance < -z_max_deviation)
+    {
+      do_blocking_move_to(getKnobMovePos(fp, true));
+      servo[servoIndex].move(SERVO_UP);
+      do_blocking_move_to(getKnobMovePos(fp, false));
+      servo[servoIndex].move(SERVO_DOWN);
+    }   
+    else
+    {
+        // within range, no action required
+    }
+}
+
 #if 0
 
 
-points = [[40,40]]
 do{
     
 
@@ -122,7 +167,7 @@ do{
 
 }
 
-const float z_limit = 0.02;
+
 
 void level(point, bool* probed, bool* leveled)
 {
@@ -139,24 +184,7 @@ void level(point, bool* probed, bool* leveled)
 }
 
 
-void move_knob(point point, float z_distance)
-{
-    if(z_distance > z_limit)
-    {
-        //G1 X40 Y0   F4000
-        //M280 P1 S90
-        //G1 X40 Y300 F4000
-        //M280 P1 S0
-    }
-    else if(z_distance < z_limit)
-    {
 
-    }   
-    else
-    {
-        // within range, no action required
-    }
-}
 #endif
 
 
