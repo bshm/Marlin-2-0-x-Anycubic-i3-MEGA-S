@@ -67,7 +67,8 @@ const xy_pos_t pos_nw = { 40.0f, 260.0f };
 const xy_pos_t pos_ne = { 260.0f, 260.0f };
 const xy_pos_t pos_se = { 260.0f, 40.0f };
 const xy_pos_t pos_sw = { 40.0f, 40.0f };
-
+const int servoIndexWest = 1;
+const int servoIndexEast = 3;
 
 
 xy_pos_t FancyPoint2XY(FancyPoint fp)
@@ -86,6 +87,21 @@ xy_pos_t FancyPoint2XY(FancyPoint fp)
   return xy_pos_t();
 }
 
+int FancyPoint2ServoIndex(FancyPoint fp)
+{
+  switch(fp)
+  {
+    case NORTH_WEST:
+      return servoIndexWest;
+    case NORTH_EAST:
+      return servoIndexEast;
+    case SOUTH_EAST:
+      return servoIndexEast;
+    case SOUTH_WEST:
+      return servoIndexWest;
+  }
+  return 0;
+}
 
 #if 0
 
