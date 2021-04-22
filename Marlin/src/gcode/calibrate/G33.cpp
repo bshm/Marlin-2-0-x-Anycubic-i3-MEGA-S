@@ -43,15 +43,25 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
+
+#include "../../module/servo.h"
+
 /**
  * G33 - Hijacked this command to implement fancy calibration
  */
 void GcodeSuite::G33() {
 
+(void) probe;
+(void) &do_blocking_move_to_z;
+(void) servo;
+
   SERIAL_ECHOLNPGM("G33: Test12");
   return;
 
 }
+
+
+
 
 #if 0
 
