@@ -179,6 +179,7 @@ void move_knob_if_needed(FancyPoint fp, float z_distance)
       servo[servoIndex].move(SERVO_UP);
       do_blocking_move_to(getKnobMovePos(fp, true));
       servo[servoIndex].move(SERVO_DOWN);
+      servo[servoIndex].detach();
     }
     else if(z_distance < -z_max_deviation)
     {
@@ -186,6 +187,7 @@ void move_knob_if_needed(FancyPoint fp, float z_distance)
       servo[servoIndex].move(SERVO_UP);
       do_blocking_move_to(getKnobMovePos(fp, false));
       servo[servoIndex].move(SERVO_DOWN);
+      servo[servoIndex].detach();
     }   
     else
     {
