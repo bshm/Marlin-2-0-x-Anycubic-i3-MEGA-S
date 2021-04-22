@@ -69,9 +69,11 @@ static void move_knob_if_needed(FancyPoint fp, float z_distance);
  */
 void GcodeSuite::G33() {
 
-
-
-  SERIAL_ECHOLNPGM("G33: Test12");
+  if(!all_axes_homed())
+  {
+    SERIAL_ECHOLNPGM("G33: needs homing");
+    return;
+  }
 
   int pointIndex = parser.intval('R', 0);
   if(pointIndex < 0 || pointIndex > 3)
@@ -81,9 +83,10 @@ void GcodeSuite::G33() {
 
   FancyPoint fp = (FancyPoint)pointIndex;
 
-
-  do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
-
+  if(current_position.z < Z_CLEARANCE_DEPLOY_PROBE)
+  {
+    do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
+  }
 
   #if HAS_LEVELING
     set_bed_leveling_enabled(false);
