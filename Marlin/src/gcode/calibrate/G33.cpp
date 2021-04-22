@@ -61,7 +61,30 @@ void GcodeSuite::G33() {
 
 }
 
-  const xy_pos_t pos1 = { 40.0f, 40.0f };
+
+enum FancyPoint { NORTH_WEST, NORTH_EAST, SOUTH_EAST, SOUTH_WEST};
+const xy_pos_t pos_nw = { 40.0f, 260.0f };
+const xy_pos_t pos_ne = { 260.0f, 260.0f };
+const xy_pos_t pos_se = { 260.0f, 40.0f };
+const xy_pos_t pos_sw = { 40.0f, 40.0f };
+
+
+
+xy_pos_t FancyPoint2XY(FancyPoint fp)
+{
+  switch(fp)
+  {
+    case NORTH_WEST:
+      return pos_nw;
+    case NORTH_EAST:
+      return pos_ne;
+    case SOUTH_EAST:
+      return pos_se;
+    case SOUTH_WEST:
+      return pos_sw;
+  }
+  return xy_pos_t();
+}
 
 
 #if 0
