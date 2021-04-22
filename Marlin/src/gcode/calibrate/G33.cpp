@@ -47,7 +47,7 @@
 #include "../../module/servo.h"
 
 
-enum FancyPoint { NORTH_WEST, NORTH_EAST, SOUTH_EAST, SOUTH_WEST};
+enum FancyPoint { SOUTH_EAST = 0, NORTH_EAST = 1, NORTH_WEST = 2 , SOUTH_WEST = 3};
 const xy_pos_t pos_nw = { 40.0f, 260.0f };
 const xy_pos_t pos_ne = { 260.0f, 260.0f };
 const xy_pos_t pos_se = { 260.0f, 40.0f };
@@ -70,7 +70,18 @@ static void move_knob_if_needed(FancyPoint fp, float z_distance);
 void GcodeSuite::G33() {
 
 
+
   SERIAL_ECHOLNPGM("G33: Test12");
+
+  int pointIndex = parser.intval('R', 0);
+  if(pointIndex < 0 || pointIndex > 3)
+  {
+    return;
+  }
+
+  FancyPoint fp = (FancyPoint)pointIndex;
+
+
   do_blocking_move_to_z(10);
 
 
@@ -81,7 +92,6 @@ void GcodeSuite::G33() {
   remember_feedrate_scaling_off();
 
 
-  FancyPoint fp = SOUTH_WEST;
   const float measured_z = probe.probe_at_point(FancyPoint2XY(fp), PROBE_PT_STOW, 1);
 
 
