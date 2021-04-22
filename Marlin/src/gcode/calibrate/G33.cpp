@@ -46,22 +46,6 @@
 
 #include "../../module/servo.h"
 
-/**
- * G33 - Hijacked this command to implement fancy calibration
- */
-void GcodeSuite::G33() {
-
-(void) probe;
-(void) &do_blocking_move_to_z;
-(void) servo;
-
-  SERIAL_ECHOLNPGM("G33: Test12");
-  do_blocking_move_to_z(10);
-
-  return;
-
-}
-
 
 enum FancyPoint { NORTH_WEST, NORTH_EAST, SOUTH_EAST, SOUTH_WEST};
 const xy_pos_t pos_nw = { 40.0f, 260.0f };
@@ -74,6 +58,31 @@ const float z_max_deviation = 0.02;
 const int SERVO_UP = 90;
 const int SERVO_DOWN = 0;
 const float KNOB_OFFSET = 30.0f ;//mm distance between knob center and start/end of movement
+
+static xy_pos_t FancyPoint2XY(FancyPoint fp);
+static int FancyPoint2ServoIndex(FancyPoint fp);
+static xy_pos_t getKnobMovePos(FancyPoint fp, bool lowerPos);
+static void move_knob_if_needed(FancyPoint fp, float z_distance);
+
+/**
+ * G33 - Hijacked this command to implement fancy calibration
+ */
+void GcodeSuite::G33() {
+
+(void) probe;
+
+  SERIAL_ECHOLNPGM("G33: Test12");
+  do_blocking_move_to_z(10);
+
+  static float distance = 1.0;
+  move_knob_if_needed(SOUTH_WEST, distance);
+  distance *= -1.0;
+
+  return;
+
+}
+
+
 
 xy_pos_t FancyPoint2XY(FancyPoint fp)
 {
