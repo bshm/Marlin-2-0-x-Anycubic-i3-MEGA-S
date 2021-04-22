@@ -54,7 +54,7 @@ const xy_pos_t pos_se = { 260.0f, 40.0f };
 const xy_pos_t pos_sw = { 40.0f, 40.0f };
 const int servoIndexWest = 1;
 const int servoIndexEast = 3;
-const float z_max_deviation = 0.02;
+const float z_max_deviation = 0.015;
 const int SERVO_UP = 90;
 const int SERVO_DOWN = 0;
 const float KNOB_OFFSET = 30.0f ;//mm distance between knob center and start/end of movement
@@ -63,7 +63,7 @@ static xy_pos_t FancyPoint2XY(FancyPoint fp);
 static int FancyPoint2ServoIndex(FancyPoint fp);
 static xy_pos_t getKnobMovePos(FancyPoint fp, bool lowerPos);
 static void move_knob_if_needed(FancyPoint fp, float z_distance);
-
+static xy_pos_t interpolate(xy_pos_t a, xy_pos_t b, float factor);
 /**
  * G33 - Hijacked this command to implement fancy calibration
  */
@@ -174,11 +174,19 @@ void move_knob_if_needed(FancyPoint fp, float z_distance)
 {
   const int servoIndex = FancyPoint2ServoIndex(fp);
   const bool direction = z_distance > z_max_deviation;
+  const bool smallStep = fabs(z_distance) < (2.0 * z_max_deviation);
     if(fabs(z_distance) > z_max_deviation)
     {
       do_blocking_move_to(getKnobMovePos(fp, !direction));
       servo[servoIndex].move(SERVO_UP);
-      do_blocking_move_to(getKnobMovePos(fp, direction));
+      if(smallStep)
+      {
+        do_blocking_move_to(interpolate(FancyPoint2XY(fp), getKnobMovePos(fp, direction), 0.6f));
+      }
+      else
+      {
+        do_blocking_move_to(getKnobMovePos(fp, direction));
+      }
       servo[servoIndex].move(SERVO_DOWN);
       servo[servoIndex].detach();
     }
@@ -186,6 +194,14 @@ void move_knob_if_needed(FancyPoint fp, float z_distance)
     {
         // within range, no action required
     }
+}
+
+xy_pos_t interpolate(xy_pos_t a, xy_pos_t b, float factor)
+{
+  xy_pos_t result;
+  result.x = a.x * factor + b.x * (1.0f - factor);
+  result.y = a.y * factor + b.y * (1.0f - factor);
+  return result;
 }
 
 #if 0
