@@ -62,10 +62,10 @@ const float KNOB_OFFSET = 30.0f ;//mm distance between knob center and start/end
 static xy_pos_t FancyPoint2XY(FancyPoint fp);
 static int FancyPoint2ServoIndex(FancyPoint fp);
 static xy_pos_t getKnobMovePos(FancyPoint fp, bool lowerPos);
-static void move_knob_if_needed(FancyPoint fp, float z_distance);
+static bool move_knob_if_needed(FancyPoint fp, float z_distance);
 static xy_pos_t interpolate(xy_pos_t a, xy_pos_t b, float factor);
-static void fancy_bed_leveling_at(FancyPoint fp);
-
+static bool fancy_bed_leveling_at(FancyPoint fp);
+static FancyPoint getNextPoint(FancyPoint fp);
 
 /**
  * G33 - Hijacked this command to implement fancy calibration
@@ -78,8 +78,8 @@ void GcodeSuite::G33() {
     return;
   }
 
-  int pointIndex = parser.intval('R', 0);
-  if(pointIndex < 0 || pointIndex > 3)
+  int pointIndex = parser.intval('R', -1);
+  if(pointIndex < -1 || pointIndex > 3)
   {
     return;
   }
@@ -90,8 +90,37 @@ void GcodeSuite::G33() {
     do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
   }
 
-  FancyPoint fp = (FancyPoint)pointIndex;
-  fancy_bed_leveling_at(fp);
+  if(pointIndex != -1)
+  {
+    FancyPoint fp = (FancyPoint)pointIndex;
+    fancy_bed_leveling_at(fp);
+  }
+  else
+  {
+    int numberOfKnobsDone = 0;
+    int step = 1;
+    FancyPoint fp = SOUTH_WEST;
+    while(numberOfKnobsDone < 4)
+    {
+      SERIAL_ECHOLNPAIR("starting step: ", step);
+
+      fp = getNextPoint(fp);
+      const bool moved = fancy_bed_leveling_at(fp);
+      if(moved)
+      {
+        numberOfKnobsDone = 0;
+      }
+      else
+      {
+        numberOfKnobsDone += 1;
+      }
+      SERIAL_ECHOLNPAIR("numberOfKnobsDone: ", numberOfKnobsDone);
+      step += 1;
+    }
+    SERIAL_ECHOLNPAIR("Done after steps: ", step);
+  }
+
+
 }
 
 
@@ -153,31 +182,33 @@ xy_pos_t getKnobMovePos(FancyPoint fp, bool lowerPos)
   return pos;
 }
 
-
-void move_knob_if_needed(FancyPoint fp, float z_distance)
+bool move_knob_if_needed(FancyPoint fp, float z_distance)
 {
   const int servoIndex = FancyPoint2ServoIndex(fp);
   const bool direction = z_distance > z_max_deviation;
   const bool smallStep = fabs(z_distance) < (2.0 * z_max_deviation);
-    if(fabs(z_distance) > z_max_deviation)
+
+  if(fabs(z_distance) > z_max_deviation)
+  {
+    do_blocking_move_to(getKnobMovePos(fp, !direction));
+    servo[servoIndex].move(SERVO_UP);
+    if(smallStep)
     {
-      do_blocking_move_to(getKnobMovePos(fp, !direction));
-      servo[servoIndex].move(SERVO_UP);
-      if(smallStep)
-      {
-        do_blocking_move_to(interpolate(FancyPoint2XY(fp), getKnobMovePos(fp, direction), 0.6f));
-      }
-      else
-      {
-        do_blocking_move_to(getKnobMovePos(fp, direction));
-      }
-      servo[servoIndex].move(SERVO_DOWN);
-      servo[servoIndex].detach();
+      do_blocking_move_to(interpolate(FancyPoint2XY(fp), getKnobMovePos(fp, direction), 0.6f));
     }
     else
     {
-        // within range, no action required
+      do_blocking_move_to(getKnobMovePos(fp, direction));
     }
+    servo[servoIndex].move(SERVO_DOWN);
+    servo[servoIndex].detach();
+    return true;
+  }
+  else
+  {
+      // within range, no action required
+    return false;
+  }
 }
 
 xy_pos_t interpolate(xy_pos_t a, xy_pos_t b, float factor)
@@ -188,8 +219,9 @@ xy_pos_t interpolate(xy_pos_t a, xy_pos_t b, float factor)
   return result;
 }
 
-void fancy_bed_leveling_at(FancyPoint fp)
+bool fancy_bed_leveling_at(FancyPoint fp)
 {
+  bool moved = false;
 
   #if HAS_LEVELING
     set_bed_leveling_enabled(false);
@@ -206,48 +238,27 @@ void fancy_bed_leveling_at(FancyPoint fp)
   if(!isnanf(measured_z))
   {
     SERIAL_ECHOLNPAIR("Bed X: ", FIXFLOAT(current_position.x), " Y: ", FIXFLOAT(current_position.y), " Z: ", FIXFLOAT(measured_z));
-    move_knob_if_needed(fp, measured_z);
+    moved = move_knob_if_needed(fp, measured_z);
   }
 
+  return moved;
 }
 
-#if 0
-
-
-do{
-    
-
-  deviation = level1 && level2 && level3 && level4
-    if(!deviation)
-    {
-        break;
-    }
-
-
-
-
-
-}
-
-
-
-void level(point, bool* probed, bool* leveled)
+FancyPoint getNextPoint(FancyPoint fp)
 {
-    int tries = 0;
-    do
-    {
-        const float z_distance = probe(point);
-        *probed = true;
-        move_knob(point, z_distance)
-        tries += 1;
-    }
-    while(fabs(distance) > z_limit || tries > 10)
-    *leveled = fabs(distance) <= z_limit;
+  switch(fp)
+  {
+    case NORTH_WEST:
+      return NORTH_EAST;
+    case NORTH_EAST:
+      return SOUTH_EAST;
+    case SOUTH_EAST:
+      return SOUTH_WEST;
+    case SOUTH_WEST:
+      return NORTH_WEST;
+  }
+  return SOUTH_WEST;
 }
-
-
-
-#endif
 
 
 #endif
