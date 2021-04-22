@@ -56,11 +56,12 @@ void GcodeSuite::G33() {
 (void) servo;
 
   SERIAL_ECHOLNPGM("G33: Test12");
+  do_blocking_move_to_z(10);
   return;
 
 }
 
-
+  const xy_pos_t pos1 = { 40.0f, 40.0f };
 
 
 #if 0
