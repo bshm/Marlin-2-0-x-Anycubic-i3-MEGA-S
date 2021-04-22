@@ -662,6 +662,16 @@ void AnycubicTouchscreenClass::HandleSpecialMenu()
     }
   #endif
 
+    else if ((strcasestr_P(currentTouchscreenSelection, PSTR(SM_FANCYLEVEL_L)) != NULL)
+    || (strcasestr_P(currentTouchscreenSelection, PSTR(SM_FANCYLEVEL_S)) != NULL))
+    {
+      SERIAL_ECHOLNPGM("Special Menu: Fancy Leveling");
+      queue.inject_P(PSTR("G28\nG33\n"));
+      buzzer.tone(105, 1108);
+      buzzer.tone(210, 1661);
+    }
+
+
   #if EITHER(KNUTWURST_BLTOUCH, KNUTWURST_TFT_LEVELING)
     else if ((strcasestr_P(currentTouchscreenSelection, PSTR(SM_BLTOUCH_L)) != NULL)
     || (strcasestr_P(currentTouchscreenSelection, PSTR(SM_BLTOUCH_S)) != NULL))
