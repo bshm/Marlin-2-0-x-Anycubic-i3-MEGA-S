@@ -52,4 +52,62 @@ void GcodeSuite::G33() {
   return;
 
 }
+
+#if 0
+
+
+points = [[40,40]]
+do{
+    
+
+  deviation = level1 && level2 && level3 && level4
+    if(!deviation)
+    {
+        break;
+    }
+
+
+
+
+
+}
+
+const float z_limit = 0.02;
+
+void level(point, bool* probed, bool* leveled)
+{
+    int tries = 0;
+    do
+    {
+        const float z_distance = probe(point);
+        *probed = true;
+        move_knob(point, z_distance)
+        tries += 1;
+    }
+    while(fabs(distance) > z_limit || tries > 10)
+    *leveled = fabs(distance) <= z_limit;
+}
+
+
+void move_knob(point point, float z_distance)
+{
+    if(z_distance > z_limit)
+    {
+        //G1 X40 Y0   F4000
+        //M280 P1 S90
+        //G1 X40 Y300 F4000
+        //M280 P1 S0
+    }
+    else if(z_distance < z_limit)
+    {
+
+    }   
+    else
+    {
+        // within range, no action required
+    }
+}
+#endif
+
+
 #endif
