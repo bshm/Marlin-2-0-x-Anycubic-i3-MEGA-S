@@ -74,9 +74,9 @@ void GcodeSuite::G33() {
   SERIAL_ECHOLNPGM("G33: Test12");
   do_blocking_move_to_z(10);
 
-  static float distance = 1.0;
-  move_knob_if_needed(SOUTH_WEST, distance);
-  distance *= -1.0;
+  FancyPoint fp = SOUTH_WEST;
+  static float distance = probe.probe_at_point(FancyPoint2XY(fp), PROBE_PT_STOW, 1);
+  move_knob_if_needed(fp, distance);
 
   return;
 
