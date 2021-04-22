@@ -64,6 +64,9 @@ static int FancyPoint2ServoIndex(FancyPoint fp);
 static xy_pos_t getKnobMovePos(FancyPoint fp, bool lowerPos);
 static void move_knob_if_needed(FancyPoint fp, float z_distance);
 static xy_pos_t interpolate(xy_pos_t a, xy_pos_t b, float factor);
+static void fancy_bed_leveling_at(FancyPoint fp);
+
+
 /**
  * G33 - Hijacked this command to implement fancy calibration
  */
@@ -81,33 +84,14 @@ void GcodeSuite::G33() {
     return;
   }
 
-  FancyPoint fp = (FancyPoint)pointIndex;
 
   if(current_position.z < Z_CLEARANCE_DEPLOY_PROBE)
   {
     do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
   }
 
-  #if HAS_LEVELING
-    set_bed_leveling_enabled(false);
-  #endif
-
-  remember_feedrate_scaling_off();
-
-
-  const float measured_z = probe.probe_at_point(FancyPoint2XY(fp), PROBE_PT_STOW, 1);
-
-
-  restore_feedrate_and_scaling();
-
-  if(!isnanf(measured_z))
-  {
-    SERIAL_ECHOLNPAIR("Bed X: ", FIXFLOAT(current_position.x), " Y: ", FIXFLOAT(current_position.y), " Z: ", FIXFLOAT(measured_z));
-    move_knob_if_needed(fp, measured_z);
-  }
-
-  return;
-
+  FancyPoint fp = (FancyPoint)pointIndex;
+  fancy_bed_leveling_at(fp);
 }
 
 
@@ -202,6 +186,29 @@ xy_pos_t interpolate(xy_pos_t a, xy_pos_t b, float factor)
   result.x = a.x * factor + b.x * (1.0f - factor);
   result.y = a.y * factor + b.y * (1.0f - factor);
   return result;
+}
+
+void fancy_bed_leveling_at(FancyPoint fp)
+{
+
+  #if HAS_LEVELING
+    set_bed_leveling_enabled(false);
+  #endif
+
+  remember_feedrate_scaling_off();
+
+
+  const float measured_z = probe.probe_at_point(FancyPoint2XY(fp), PROBE_PT_STOW, 1);
+
+
+  restore_feedrate_and_scaling();
+
+  if(!isnanf(measured_z))
+  {
+    SERIAL_ECHOLNPAIR("Bed X: ", FIXFLOAT(current_position.x), " Y: ", FIXFLOAT(current_position.y), " Z: ", FIXFLOAT(measured_z));
+    move_knob_if_needed(fp, measured_z);
+  }
+
 }
 
 #if 0
