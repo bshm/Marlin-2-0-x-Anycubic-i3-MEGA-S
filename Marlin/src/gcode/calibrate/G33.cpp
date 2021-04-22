@@ -155,16 +155,16 @@ void move_knob_if_needed(FancyPoint fp, float z_distance)
   const int servoIndex = FancyPoint2ServoIndex(fp);
     if(z_distance > z_max_deviation)
     {
-      do_blocking_move_to(getKnobMovePos(fp, true));
-      servo[servoIndex].move(SERVO_UP);
       do_blocking_move_to(getKnobMovePos(fp, false));
+      servo[servoIndex].move(SERVO_UP);
+      do_blocking_move_to(getKnobMovePos(fp, true));
       servo[servoIndex].move(SERVO_DOWN);
     }
     else if(z_distance < -z_max_deviation)
     {
-      do_blocking_move_to(getKnobMovePos(fp, false));
-      servo[servoIndex].move(SERVO_UP);
       do_blocking_move_to(getKnobMovePos(fp, true));
+      servo[servoIndex].move(SERVO_UP);
+      do_blocking_move_to(getKnobMovePos(fp, false));
       servo[servoIndex].move(SERVO_DOWN);
     }   
     else
