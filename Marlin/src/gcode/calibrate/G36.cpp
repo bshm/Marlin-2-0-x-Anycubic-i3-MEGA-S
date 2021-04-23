@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(DELTA_AUTO_CALIBRATION)
+#if ENABLED(FANCY_BED_LEVELING)
 
 #include "../gcode.h"
 #include "../../module/delta.h"
@@ -33,10 +33,6 @@
 
 #if HAS_BED_PROBE
   #include "../../module/probe.h"
-#endif
-
-#if HOTENDS > 1
-  #include "../../module/tool_change.h"
 #endif
 
 #if HAS_LEVELING
@@ -68,13 +64,13 @@ static bool fancy_bed_leveling_at(FancyPoint fp);
 static FancyPoint getNextPoint(FancyPoint fp);
 
 /**
- * G33 - Hijacked this command to implement fancy calibration
+ * G36 - fancy bed leveling
  */
-void GcodeSuite::G33() {
+void GcodeSuite::G36() {
 
   if(!all_axes_homed())
   {
-    SERIAL_ECHOLNPGM("G33: needs homing");
+    SERIAL_ECHOLNPGM("G36: needs homing");
     return;
   }
 

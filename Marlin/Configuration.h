@@ -2738,4 +2738,5 @@
 // Allow servo angle to be edited and saved to EEPROM
 //#define EDITABLE_SERVO_ANGLES
 
-#define DELTA_AUTO_CALIBRATION
+// 2 Servos can move the bed leveling knobs when the y axis is moved
+#define FANCY_BED_LEVELING
