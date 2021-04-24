@@ -463,7 +463,7 @@ private:
     static void M422();
   #endif
 
-  #if ENABLED(DELTA_AUTO_CALIBRATION)
+  #if ENABLED(FANCY_BED_LEVELING)
     static void G36();
   #endif
 

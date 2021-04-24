@@ -39,9 +39,9 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-
-#include "../../module/servo.h"
-
+#if HAS_SERVOS
+  #include "../../module/servo.h"
+#endif
 
 enum FancyPoint { SOUTH_WEST = 0, NORTH_WEST = 1, NORTH_EAST = 2 , SOUTH_EAST = 3};
 const xy_pos_t pos_nw = { 40.0f, 260.0f };
