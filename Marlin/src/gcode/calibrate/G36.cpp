@@ -43,24 +43,57 @@
   #include "../../module/servo.h"
 #endif
 
+/** Logical Position of the 4 level knob wheels. */
 enum FancyPoint { SOUTH_WEST = 0, NORTH_WEST = 1, NORTH_EAST = 2 , SOUTH_EAST = 3};
-const xy_pos_t pos_nw = { 40.0f, 260.0f };
-const xy_pos_t pos_ne = { 260.0f, 260.0f };
-const xy_pos_t pos_se = { 260.0f, 40.0f };
-const xy_pos_t pos_sw = { 40.0f, 40.0f };
-const int servoIndexWest = 1;
-const int servoIndexEast = 3;
-const float z_max_deviation = 0.015;
-const int SERVO_UP = 90;
-const int SERVO_DOWN = 0;
-const float KNOB_OFFSET = 35.0f ;//mm distance between knob center and start/end of movement
 
+/** Physical position of the knob wheel */
+constexpr xy_pos_t pos_nw = { 40.0f, 260.0f };
+/** Physical position of the knob wheel */
+constexpr xy_pos_t pos_ne = { 260.0f, 260.0f };
+/** Physical position of the knob wheel */
+constexpr xy_pos_t pos_se = { 260.0f, 40.0f };
+/** Physical position of the knob wheel */
+constexpr xy_pos_t pos_sw = { 40.0f, 40.0f };
+
+/** Index of the servo controlling the knobs on the left side */
+constexpr int servoIndexWest = 1;
+/** Index of the servo controlling the knobs on the right side */
+constexpr int servoIndexEast = 3;
+
+/** Fancy bed leveling will finish after all z probes are within this range */
+constexpr float z_max_deviation_mm = 0.015;
+
+/** commanded positon of the servo to move the wheel */
+constexpr int SERVO_UP_DEG = 90;
+
+/** commanded positon of the servo below the wheel */
+constexpr int SERVO_DOWN_DEG = 0;
+
+/** How far position before/after knob move from knob center on y axis */
+constexpr float KNOB_OFFSET_MM = 35.0f ;
+
+/** Returns the coordinates for a given fancy leveling point */
 static xy_pos_t FancyPoint2XY(FancyPoint fp);
+
+/** Returns the servo index for a given fancy leveling point */
 static int FancyPoint2ServoIndex(FancyPoint fp);
+
+/** Returns the start/end coordinates to move to in order to move the knob.
+ * @param lowerPos set to false,true to move the knob CCW, true,false to move CW
+*/
 static xy_pos_t getKnobMovePos(FancyPoint fp, bool lowerPos);
-static bool move_knob_if_needed(FancyPoint fp, float z_distance);
+
+/** Moves the knob given by fp if z_distance_mm is greater than z_max_deviation_mm */
+static bool move_knob_if_needed(FancyPoint fp, float z_distance_mm);
+
+/** linear interpolation between two coordinates.
+ * @param factor must be within [0.1,1.0] */
 static xy_pos_t interpolate(xy_pos_t a, xy_pos_t b, float factor);
+
+/** performs a leveling step at position fp */
 static bool fancy_bed_leveling_at(FancyPoint fp);
+
+/** defines the visiting order of the leveling point */
 static FancyPoint getNextPoint(FancyPoint fp);
 
 /**
@@ -77,12 +110,13 @@ void GcodeSuite::G36() {
   int pointIndex = parser.intval('R', -1);
   if(pointIndex < -1 || pointIndex > 3)
   {
+    SERIAL_ECHOLNPGM("G36: R index out of range");
     return;
   }
 
-
   if(current_position.z < Z_CLEARANCE_DEPLOY_PROBE)
   {
+    SERIAL_ECHOLNPGM("G36: raising print head before first xy movement starts");
     do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
   }
 
@@ -168,26 +202,26 @@ xy_pos_t getKnobMovePos(FancyPoint fp, bool lowerPos)
 
   if(lowerPos)
   {
-    pos.y -= KNOB_OFFSET; 
+    pos.y -= KNOB_OFFSET_MM; 
   }
   else
   { 
-    pos.y += KNOB_OFFSET; 
+    pos.y += KNOB_OFFSET_MM; 
   }
 
   return pos;
 }
 
-bool move_knob_if_needed(FancyPoint fp, float z_distance)
+bool move_knob_if_needed(FancyPoint fp, float z_distance_mm)
 {
   const int servoIndex = FancyPoint2ServoIndex(fp);
-  const bool direction = z_distance > z_max_deviation;
-  const bool smallStep = fabs(z_distance) < (2.0 * z_max_deviation);
+  const bool direction = z_distance_mm > z_max_deviation_mm;
+  const bool smallStep = fabs(z_distance_mm) < (2.0 * z_max_deviation_mm);
 
-  if(fabs(z_distance) > z_max_deviation)
+  if(fabs(z_distance_mm) > z_max_deviation_mm)
   {
     do_blocking_move_to(getKnobMovePos(fp, !direction));
-    servo[servoIndex].move(SERVO_UP);
+    servo[servoIndex].move(SERVO_UP_DEG);
     if(smallStep)
     {
       do_blocking_move_to(interpolate(FancyPoint2XY(fp), getKnobMovePos(fp, direction), 0.6f));
@@ -196,7 +230,7 @@ bool move_knob_if_needed(FancyPoint fp, float z_distance)
     {
       do_blocking_move_to(getKnobMovePos(fp, direction));
     }
-    servo[servoIndex].move(SERVO_DOWN);
+    servo[servoIndex].move(SERVO_DOWN_DEG);
     servo[servoIndex].detach();
     return true;
   }
