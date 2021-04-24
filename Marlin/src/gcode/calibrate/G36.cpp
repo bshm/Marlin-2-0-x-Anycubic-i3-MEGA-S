@@ -53,7 +53,7 @@ const int servoIndexEast = 3;
 const float z_max_deviation = 0.015;
 const int SERVO_UP = 90;
 const int SERVO_DOWN = 0;
-const float KNOB_OFFSET = 30.0f ;//mm distance between knob center and start/end of movement
+const float KNOB_OFFSET = 35.0f ;//mm distance between knob center and start/end of movement
 
 static xy_pos_t FancyPoint2XY(FancyPoint fp);
 static int FancyPoint2ServoIndex(FancyPoint fp);
