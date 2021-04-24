@@ -25,23 +25,11 @@
 #if ENABLED(FANCY_BED_LEVELING)
 
 #include "../gcode.h"
-#include "../../module/delta.h"
 #include "../../module/motion.h"
-#include "../../module/stepper.h"
-#include "../../module/endstops.h"
-#include "../../lcd/ultralcd.h"
+#include "../../module/probe.h"
+#include "../../feature/bedlevel/bedlevel.h"
+#include "../../module/servo.h"
 
-#if HAS_BED_PROBE
-  #include "../../module/probe.h"
-#endif
-
-#if HAS_LEVELING
-  #include "../../feature/bedlevel/bedlevel.h"
-#endif
-
-#if HAS_SERVOS
-  #include "../../module/servo.h"
-#endif
 
 /** Logical Position of the 4 level knob wheels. */
 enum FancyPoint { SOUTH_WEST = 0, NORTH_WEST = 1, NORTH_EAST = 2 , SOUTH_EAST = 3};
