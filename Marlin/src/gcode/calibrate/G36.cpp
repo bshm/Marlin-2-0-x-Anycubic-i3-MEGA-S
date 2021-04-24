@@ -63,6 +63,9 @@ constexpr int servoIndexEast = 3;
 /** Fancy bed leveling will finish after all z probes are within this range */
 constexpr float z_max_deviation_mm = 0.015;
 
+/** Interpolation factor to use for the the small step end position between center and KNOB_OFFSET_MM */
+constexpr float small_step_move_factor = 0.514;
+
 /** commanded positon of the servo to move the wheel */
 constexpr int SERVO_UP_DEG = 90;
 
@@ -223,7 +226,7 @@ bool move_knob_if_needed(FancyPoint fp, float z_distance_mm)
     servo[servoIndex].move(SERVO_UP_DEG);
     if(smallStep)
     {
-      do_blocking_move_to(interpolate(FancyPoint2XY(fp), getKnobMovePos(fp, direction), 0.6f));
+      do_blocking_move_to(interpolate(FancyPoint2XY(fp), getKnobMovePos(fp, direction), small_step_move_factor));
     }
     else
     {
