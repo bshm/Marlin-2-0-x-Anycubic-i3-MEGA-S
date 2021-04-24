@@ -2723,9 +2723,9 @@
  * Set this manually if there are extra servos needing manual control.
  * Leave undefined or set to 0 to entirely disable the servo subsystem.
  */
-//#if ENABLED(KNUTWURST_TFT_LEVELING)
-   #define NUM_SERVOS 4// Servo index starts with 0 for M280 command
-//#endif
+#if ENABLED(KNUTWURST_TFT_LEVELING)
+   #define NUM_SERVOS 1// Servo index starts with 0 for M280 command
+#endif
 
 // (ms) Delay  before the next move will start, to give the servo time to reach its target angle.
 // 300ms is a good value but you can try less delay.
@@ -2740,3 +2740,4 @@
 
 // 2 Servos can move the bed leveling knobs when the y axis is moved
 #define FANCY_BED_LEVELING
+#define NUM_SERVOS 4
