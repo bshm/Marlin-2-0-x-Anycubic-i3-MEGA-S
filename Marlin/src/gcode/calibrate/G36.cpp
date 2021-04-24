@@ -149,10 +149,7 @@ void GcodeSuite::G36() {
     }
     SERIAL_ECHOLNPAIR("Done after steps: ", step);
   }
-
-
 }
-
 
 
 xy_pos_t FancyPoint2XY(FancyPoint fp)
@@ -170,6 +167,7 @@ xy_pos_t FancyPoint2XY(FancyPoint fp)
   }
   return xy_pos_t();
 }
+
 
 int FancyPoint2ServoIndex(FancyPoint fp)
 {
@@ -212,6 +210,7 @@ xy_pos_t getKnobMovePos(FancyPoint fp, bool lowerPos)
   return pos;
 }
 
+
 bool move_knob_if_needed(FancyPoint fp, float z_distance_mm)
 {
   const int servoIndex = FancyPoint2ServoIndex(fp);
@@ -241,6 +240,7 @@ bool move_knob_if_needed(FancyPoint fp, float z_distance_mm)
   }
 }
 
+
 xy_pos_t interpolate(xy_pos_t a, xy_pos_t b, float factor)
 {
   xy_pos_t result;
@@ -248,6 +248,7 @@ xy_pos_t interpolate(xy_pos_t a, xy_pos_t b, float factor)
   result.y = a.y * factor + b.y * (1.0f - factor);
   return result;
 }
+
 
 bool fancy_bed_leveling_at(FancyPoint fp)
 {
@@ -260,16 +261,15 @@ bool fancy_bed_leveling_at(FancyPoint fp)
   remember_feedrate_scaling_off();
 
 
-  const float measured_z = probe.probe_at_point(FancyPoint2XY(fp), PROBE_PT_STOW, 1);
-
-
+  const float measured_z_mm = probe.probe_at_point(FancyPoint2XY(fp), PROBE_PT_STOW, 1);
   restore_feedrate_and_scaling();
 
-  if(!isnanf(measured_z))
+  if(!isnanf(measured_z_mm))
   {
-    SERIAL_ECHOLNPAIR("Bed X: ", FIXFLOAT(current_position.x), " Y: ", FIXFLOAT(current_position.y), " Z: ", FIXFLOAT(measured_z));
-    moved = move_knob_if_needed(fp, measured_z);
+    SERIAL_ECHOLNPAIR("Bed X: ", FIXFLOAT(current_position.x), " Y: ", FIXFLOAT(current_position.y), " Z: ", FIXFLOAT(measured_z_mm));
+    moved = move_knob_if_needed(fp, measured_z_mm);
   }
+  //TODO extend interface to abort here on measurement failures
 
   return moved;
 }
@@ -289,6 +289,5 @@ FancyPoint getNextPoint(FancyPoint fp)
   }
   return SOUTH_WEST;
 }
-
 
 #endif
