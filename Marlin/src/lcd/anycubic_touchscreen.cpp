@@ -662,6 +662,16 @@ void AnycubicTouchscreenClass::HandleSpecialMenu()
     }
   #endif
 
+    else if ((strcasestr_P(currentTouchscreenSelection, PSTR(SM_FANCYLEVEL_L)) != NULL)
+    || (strcasestr_P(currentTouchscreenSelection, PSTR(SM_FANCYLEVEL_S)) != NULL))
+    {
+      SERIAL_ECHOLNPGM("Special Menu: Fancy Leveling");
+      queue.inject_P(PSTR("G28 O\nG36\n"));
+      buzzer.tone(105, 1108);
+      buzzer.tone(210, 1661);
+    }
+
+
   #if EITHER(KNUTWURST_BLTOUCH, KNUTWURST_TFT_LEVELING)
     else if ((strcasestr_P(currentTouchscreenSelection, PSTR(SM_BLTOUCH_L)) != NULL)
     || (strcasestr_P(currentTouchscreenSelection, PSTR(SM_BLTOUCH_S)) != NULL))
@@ -962,6 +972,8 @@ void AnycubicTouchscreenClass::PrintList()
       break;
 
     case 12: // Page 3
+      HARDWARE_SERIAL_PROTOCOLLNPGM(SM_FANCYLEVEL_S);
+      HARDWARE_SERIAL_PROTOCOLLNPGM(SM_FANCYLEVEL_L);
       HARDWARE_SERIAL_PROTOCOLLNPGM(SM_EXIT_S);
       HARDWARE_SERIAL_PROTOCOLLNPGM(SM_EXIT_L);
       break;

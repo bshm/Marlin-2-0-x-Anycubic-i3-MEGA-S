@@ -2737,3 +2737,11 @@
 
 // Allow servo angle to be edited and saved to EEPROM
 //#define EDITABLE_SERVO_ANGLES
+
+// 2 Servos can move the bed leveling knobs when the y axis is moved
+#define FANCY_BED_LEVELING
+#if ENABLED(FANCY_BED_LEVELING)
+  #define NUM_SERVOS 4
+  #undef SERVO_DELAY
+  #define SERVO_DELAY { 300, 300, 300, 300 }
+#endif

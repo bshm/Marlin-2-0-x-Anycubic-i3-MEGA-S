@@ -194,6 +194,10 @@ char *ftostr32(const float &);
 #define SM_EZLVL_P4_S         "<EZLPD01.GCO"
 #define SM_EZLVL_EXIT_L       "<End Easy Leveling> .gcode"
 #define SM_EZLVL_EXIT_S       "<EZLEXT1.GCO"
+
+#define SM_FANCYLEVEL_L        "<Start Fancy Level>.gcode"
+#define SM_FANCYLEVEL_S        "<FANCY~1.GCO"
+
 #endif
 
 #if ENABLED(KNUTWURST_TFT_LEVELING)

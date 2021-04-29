@@ -463,6 +463,10 @@ private:
     static void M422();
   #endif
 
+  #if ENABLED(FANCY_BED_LEVELING)
+    static void G36();
+  #endif
+
   #if ENABLED(G38_PROBE_TARGET)
     static void G38(const int8_t subcode);
   #endif
